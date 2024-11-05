@@ -1,0 +1,14 @@
+/* src/App.css */
+/* Add slick-carousel CSS */
+@import "~slick-carousel/slick/slick.css";
+@import "~slick-carousel/slick/slick-theme.css";
+
+.App {
+  display: flex;
+}
+
+.content {
+  margin-left: 250px;
+  padding: 20px;
+  width: 100%;
+}

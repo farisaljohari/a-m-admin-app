@@ -1,0 +1,46 @@
+.card {
+    width: 300px;
+    /* Default width */
+}
+
+@media (min-width: 1000px) {
+    .card {
+        width: 400px;
+        /* Width for screens 1000px and above */
+    }
+}
+
+@media (min-width: 1200px) {
+    .card {
+        width: 480px;
+        /* Width for screens 1200px and above */
+    }
+}
+
+@media (min-width: 1350px) {
+    .card {
+        width: 550px;
+        /* Width for screens 1350px and above */
+    }
+}
+
+@media (min-width: 1450px) {
+    .card {
+        width: 600px;
+        /* Width for screens 1450px and above */
+    }
+}
+
+@media (min-width: 1600px) {
+    .card {
+        width: 650px;
+        /* Width for screens 1600px and above */
+    }
+}
+
+@media (min-width: 1700px) {
+    .card {
+        width: 750px;
+        /* Width for screens 1700px and above */
+    }
+}
