@@ -57,7 +57,8 @@ const ImageActions = styled.div`
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Page loading state
+  const [buttonLoading, setButtonLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -71,26 +72,55 @@ const Projects = () => {
   const [projectUuid, setProjectUuid] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [totalPages, setTotalPages] = useState(1); // Track total pages
+  const [hasMore, setHasMore] = useState(true); // Track if more projects are available
 
-  const fetchProjects = async () => {
+  const fetchProjects = async (page = 1) => {
+    setLoading(page === 1); // Set loading true only for the first fetch (initial page load)
+    setButtonLoading(page > 1); // Only show button loading when fetching more data
+
     try {
       const response = await axios.get(
-        "https://a-m-admin-api.onrender.com/project"
+        "https://a-m-admin-api.onrender.com/project",
+        {
+          params: { page, limit: 4 },
+        }
       );
-      setProjects(response.data);
+
+      const { data, totalPages } = response.data;
+
+      setProjects((prev) => {
+        const newProjects = data.filter(
+          (newProject) =>
+            !prev.some(
+              (existingProject) => existingProject.uuid === newProject.uuid
+            )
+        );
+        return [...prev, ...newProjects]; // Append only unique projects
+      });
+
+      setTotalPages(totalPages);
+      setHasMore(page < totalPages); // Check if there are more pages to load
     } catch (error) {
       const message =
         error.response?.data?.message || "Error fetching the projects.";
       toast.error(message);
     } finally {
-      setLoading(false);
+      setLoading(false); // Stop page loading once the data is fetched
+      setButtonLoading(false); // Stop button loading once data is fetched for "See More"
+    }
+  };
+
+  const handleSeeMore = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1); // Increment page to load more projects
     }
   };
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
-
+    fetchProjects(currentPage); // Fetch projects on initial load or when page changes
+  }, [currentPage]);
   const handleOpen = () => {
     if (projects.length >= 30) {
       toast.error(
@@ -294,9 +324,10 @@ const Projects = () => {
       >
         Add Project
       </Button>
-      {loading ? (
+      {loading && (
         <CircularProgress style={{ display: "block", margin: "0 auto" }} />
-      ) : (
+      )}
+      {!loading && (
         <Grid container spacing={5} className="grid">
           {projects.map((project) => (
             <Grid item xs={12} sm={6} md={6} lg={5} key={project.id}>
@@ -317,7 +348,7 @@ const Projects = () => {
                       <div key={index}>
                         <CardMedia
                           component="img"
-                          image={`${image.image}`}
+                          image={image.image}
                           alt={`Project ${project.id} image ${index + 1}`}
                           style={{ height: "200px", objectFit: "cover" }}
                         />
@@ -337,36 +368,10 @@ const Projects = () => {
                         style={{ color: "gray" }}
                       />
                       <span style={{ color: "gray", fontWeight: "200" }}>
-                        {" "}
                         {project.location}
-                      </span>{" "}
+                      </span>
                     </Typography>
-                    <div
-                      style={{
-                        backgroundColor: "red",
-                        width: "20px",
-                        height: "20px",
-                        borderRadius: "50%",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        position: "absolute",
-                        top: "5px",
-                        right: "5px",
-                        cursor: "pointer",
-                        padding: "7px",
-                        zIndex: 1000,
-                      }}
-                    >
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        color="white"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteOpen(project);
-                        }}
-                      />
-                    </div>
+                    {/* Add delete button and other actions here */}
                   </Typography>
                 </CardContent>
               </Card>
@@ -374,7 +379,22 @@ const Projects = () => {
           ))}
         </Grid>
       )}
-
+      {hasMore && !loading && (
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={handleSeeMore}
+          style={{
+            marginTop: "20px",
+            display: "block",
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
+          disabled={buttonLoading} // Disable the button when loading
+        >
+          {buttonLoading ? <CircularProgress size={24} /> : "See More"}
+        </Button>
+      )}
       {/* Modal for adding a project */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Add New Project</DialogTitle>
