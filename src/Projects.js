@@ -57,8 +57,7 @@ const ImageActions = styled.div`
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true); // Page loading state
-  const [buttonLoading, setButtonLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -75,6 +74,7 @@ const Projects = () => {
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [totalPages, setTotalPages] = useState(1); // Track total pages
   const [hasMore, setHasMore] = useState(true); // Track if more projects are available
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   const fetchProjects = async (page = 1) => {
     setLoading(page === 1); // Set loading true only for the first fetch (initial page load)
@@ -112,15 +112,15 @@ const Projects = () => {
     }
   };
 
+  useEffect(() => {
+    fetchProjects(currentPage); // Fetch projects on initial load or when page changes
+  }, [currentPage]);
+
   const handleSeeMore = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prev) => prev + 1); // Increment page to load more projects
     }
   };
-
-  useEffect(() => {
-    fetchProjects(currentPage); // Fetch projects on initial load or when page changes
-  }, [currentPage]);
   const handleOpen = () => {
     if (projects.length >= 30) {
       toast.error(
@@ -158,6 +158,7 @@ const Projects = () => {
         `https://a-m-admin-api.onrender.com/project/${projectToDelete.uuid}`
       );
       fetchProjects();
+      window.location.reload();
     } catch (error) {
       const message =
         error.response?.data?.message || "Error deleting the project.";
@@ -327,6 +328,7 @@ const Projects = () => {
       {loading && (
         <CircularProgress style={{ display: "block", margin: "0 auto" }} />
       )}
+
       {!loading && (
         <Grid container spacing={5} className="grid">
           {projects.map((project) => (
@@ -371,7 +373,32 @@ const Projects = () => {
                         {project.location}
                       </span>
                     </Typography>
-                    {/* Add delete button and other actions here */}
+                    <div
+                      style={{
+                        backgroundColor: "red",
+                        width: "20px",
+                        height: "20px",
+                        borderRadius: "50%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        position: "absolute",
+                        top: "5px",
+                        right: "5px",
+                        cursor: "pointer",
+                        padding: "7px",
+                        zIndex: 1000,
+                      }}
+                    >
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        color="white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteOpen(project);
+                        }}
+                      />
+                    </div>{" "}
                   </Typography>
                 </CardContent>
               </Card>
@@ -379,6 +406,7 @@ const Projects = () => {
           ))}
         </Grid>
       )}
+
       {hasMore && !loading && (
         <Button
           variant="outlined"
@@ -553,7 +581,6 @@ const Projects = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
       {/* Modal for deleting a project */}
       <Dialog open={deleteOpen} onClose={handleDeleteClose}>
         <DialogTitle>Delete Project</DialogTitle>
@@ -569,7 +596,6 @@ const Projects = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
       {/* Modal for project details */}
       <Dialog open={detailsOpen} onClose={() => setDetailsOpen(false)}>
         <DialogTitle>Project Details</DialogTitle>
