@@ -282,7 +282,7 @@ const Projects = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", marginTop: "50px" }}>
       <Typography variant="h4" align="center" gutterBottom>
         Projects
       </Typography>

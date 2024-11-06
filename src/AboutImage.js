@@ -113,7 +113,14 @@ const AboutImage = () => {
 
   return (
     <>
-      <Box sx={{ p: 3, backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
+      <Box
+        sx={{
+          p: 3,
+          backgroundColor: "#f5f5f5",
+          borderRadius: "8px",
+          marginTop: "50px",
+        }}
+      >
         <Typography
           variant="h4"
           gutterBottom
