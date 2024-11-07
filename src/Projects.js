@@ -303,6 +303,7 @@ const Projects = () => {
       );
       fetchProjects();
       setDetailsOpen(false);
+      window.location.reload();
     } catch (error) {
       const message =
         error.response?.data?.message || "Error saving project details.";
